@@ -13,7 +13,7 @@ import assistBotsMod.AIPlayer;
 import static mindustry.Vars.*;
 
 public class assistBotsMod extends Plugin{
-    public Seq<String> adminBehaviors = Seq.with("base");
+    // public Seq<String> adminBehaviors = Seq.with("base"); //currently unused
     public static Seq<AIPlayer> AIPlayers = new Seq<>();
 
     public float rebalanceDelay = 1f;
@@ -120,10 +120,10 @@ public class assistBotsMod extends Plugin{
                 player.sendMessage(s.toString());
                 return;
             }
-            if(adminBehaviors.contains(cmd)){
+            /*if(adminBehaviors.contains(cmd)){
                 player.sendMessage("[scarlet]That command is only for admins.");
                 return;
-            }
+            }*/ //currently unused
             int amount = AIPlayers.size;
             if(args.length > 1){
                 try{
