@@ -1,0 +1,38 @@
+apply plugin: "java"
+
+version '1.0'
+
+sourceSets.main.java.srcDirs = ["src"]
+
+repositories{
+    mavenCentral()
+    maven{ url 'https://www.jitpack.io' }
+}
+
+dependencies{
+    def version = "v135"
+    compileOnly "com.github.Anuken.Arc:arc-core:$version"
+    compileOnly "com.github.Anuken.Mindustry:core:$version"
+}
+
+compileJava{
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+    options.encoding = "UTF-8"
+}
+
+compileTestJava{
+    options.encoding = "UTF-8"
+}
+
+jar{
+    archiveFileName = "${project.archivesBaseName}.jar"
+
+    from{
+        configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+    }
+
+    from(rootDir){
+        include "plugin.json"
+    }
+}

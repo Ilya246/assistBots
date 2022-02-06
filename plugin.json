@@ -1,0 +1,7 @@
+{
+  "name": "Assistant Bots",
+  "author": "[USMP]Ilya246",
+  "main": "assistBotsMod.assistBotsMod",
+  "description": "Adds bots to assist players.",
+  "version": 1.0
+}
