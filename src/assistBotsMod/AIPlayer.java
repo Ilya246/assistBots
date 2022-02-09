@@ -25,23 +25,24 @@ import mindustry.Vars;
 import static mindustry.Vars.*;
 
 public class AIPlayer{
-    public Unit unit;
-    public Team team;
-    public String behaviorType = "auto";
     public float respawnTimer = respawnTime;
     public boolean spawnedByCore = true;
+    public String behaviorType = "auto";
+    public String aiArgs = "";
+    public Unit unit;
+    public Team team;
+    public Interval timer = new Interval(2);
     public static Seq<String> behaviorTypes = Seq.with("auto", "mine", "build", "defend");
     public static float respawnTime = 15f;
+    public static float coreCheckTime = 240f;
     public static float defendBuildingAggro = 400f;
     public static float autoAggroDistance = 640f;
     public static float autoAggroMultiplier = 1.2f;
     public static float autoCheckDelay = 60f;
     public static float prefBuildTime = 1800f / autoCheckDelay;
 
-
     //AI-related vars
     public String curAI = "mine";
-    public Interval autoAITimer = new Interval(2);
     public float prefBuildTimer = 0f;
 
     public AIPlayer(Team team){
@@ -52,11 +53,14 @@ public class AIPlayer{
         if(unit == null || unit.dead()){
             respawnTimer += Time.delta;
         }
-        if(respawnTimer >= respawnTime){
+        if(respawnTimer >= respawnTime || (timer.get(1, coreCheckTime) && unit != null && ((CoreBlock)bestCore().block).unitType != unit.type)){
             Building core = bestCore();
             if(core == null){
                 assistBotsMod.AIPlayers.remove(this);
                 return;
+            }
+            if(unit != null && spawnedByCore){
+                Call.unitDespawn(unit);
             }
             int oldCap = state.rules.unitCap;
             state.rules.unitCap = Integer.MAX_VALUE - Units.getCap(team);
@@ -71,7 +75,7 @@ public class AIPlayer{
         if(unit.getPlayer() != null){
             unit.getPlayer().clearUnit();
         }
-        if(!(unit.controller() instanceof MinerAI)){
+        if(!(unit.controller() instanceof MineAI)){
             unit.mineTile = null;
         }
         doAI(behaviorType);
@@ -83,13 +87,13 @@ public class AIPlayer{
     public void doAI(String type){
         switch(type){
             case "mine":
-                if(!(unit.controller() instanceof MinerAI)){
-                    unit.controller(new MinerAI());
+                if(!(unit.controller() instanceof MineAI)){
+                    unit.controller(new MineAI(aiArgs, unit));
                 }
                 break;
             case "defend":
                 if(!(unit.controller() instanceof DefendAI)){
-                    unit.controller(new DefendAI());
+                    unit.controller(new DefendAI(aiArgs));
                 }
                 break;
             case "build":
@@ -102,6 +106,21 @@ public class AIPlayer{
                 break;
         }
     }
+    public void resetAI(){
+        if(unit != null){
+            switch(behaviorType){
+                case "mine":
+                    unit.controller(new MineAI(aiArgs, unit));
+                    break;
+                case "defend":
+                    unit.controller(new DefendAI(aiArgs));
+                    break;
+                case "build":
+                    unit.controller(new BuildAI());
+                    break;
+            }
+        }
+    }
 
     public Teamc target(float x, float y, float buildingRange, boolean air, boolean ground){
         return Units.closestTarget(unit.team, x, y, buildingRange, u -> u.checkTarget(air, ground), t -> ground && targetBuildings() && unit.within(t, buildingRange));
@@ -111,8 +130,8 @@ public class AIPlayer{
     }
     public void doAutoAI(){
         doAI(curAI);
-        if(autoAITimer.get(0, autoCheckDelay)){
-            Teamc target = target(unit.x, unit.y, DefendAI.defendMaxRange, unit.type.targetAir, unit.type.targetGround);
+        if(timer.get(0, autoCheckDelay)){
+            Teamc target = target(unit.x, unit.y, DefendAI.defendRangeDefault, unit.type.targetAir, unit.type.targetGround);
             if(target != null && unit.within(target, autoAggroDistance + unit.range() * autoAggroMultiplier) && !(target instanceof Building && !targetBuildings())){
                 curAI = "defend";
                 return;

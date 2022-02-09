@@ -13,7 +13,6 @@ import mindustry.world.blocks.ConstructBlock.ConstructBuild;
 import static mindustry.Vars.*;
 
 public class BuildAI extends AIController{
-
     private boolean found = false;
     public float buildOverclock = 0f;
     public Unit following;

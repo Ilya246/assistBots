@@ -12,9 +12,18 @@ import static mindustry.Vars.*;
 public class DefendAI extends AIController{
 
     public Teamc target;
+    public float defendMaxRange;
 
-    public static float defendMaxRange = 6400f;
+    public static float defendRangeDefault = 6400f;
     public static float buildingRange = 320f * 320f;
+
+    public DefendAI(String range){
+        try{
+            defendMaxRange = Float.parseFloat(range) * tilesize;
+        }catch(NumberFormatException e){
+            defendMaxRange = defendRangeDefault;
+        }
+    }
 
     @Override
     public void updateMovement(){

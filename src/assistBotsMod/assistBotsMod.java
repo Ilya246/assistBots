@@ -62,7 +62,7 @@ public class assistBotsMod extends Plugin{
                 p.update();
             });
             if(!Config.orderRestrict.b() && Mathf.chance(Config.tooltipChance.f() * Time.delta)){
-                Call.sendMessage("[crimson]<Bot Plugin>: [accent]Consider using the [lightgray]/order []command to command bots!");
+                Call.sendMessage("[crimson]<Bot Plugin>: [accent]Consider using the [lightgray]/order []command to command bots, check /help for info about arguments.");
             }
         });
         Events.on(WorldLoadEvent.class, e -> {
@@ -112,7 +112,7 @@ public class assistBotsMod extends Plugin{
     }
 
     public void registerClientCommands(CommandHandler handler){
-        handler.<Player>register("order", "[command] [amount]", "Order bots to switch their behavior.", (args, player) -> {
+        handler.<Player>register("order", "[command] [amount] [args...]", "Order bots to switch their behavior.", (args, player) -> {
             if(args.length == 0){
                 StringBuilder s = new StringBuilder("[accent]Available commands:");
                 AIPlayer.behaviorTypes.each(b -> {
@@ -150,20 +150,27 @@ public class assistBotsMod extends Plugin{
             Seq<AIPlayer> validBots = AIPlayers.select(p -> p.team == player.team());
             int botsChecked = 0;
             int botsSwitched = 0;
+            String cargs = args.length > 2 ? args[2] : "";
             for(AIPlayer p : validBots){
                 if(botsSwitched == amount){
                     break;
                 }
                 if(p.behaviorType == "auto" || validBots.size - botsChecked <= amount){
                     p.behaviorType = cmd;
+                    p.aiArgs = cargs;
+                    p.resetAI();
                     botsSwitched++;
                 }
                 botsChecked++;
             }
             final int botsSwitchedFinal = botsSwitched; //java is bad
             Groups.player.each(p -> p.team() == player.team(), p -> {
-                p.sendMessage(Strings.format("@[accent] is switching behavior of @ bots to @.", player.coloredName(), botsSwitchedFinal, cmd));
+                p.sendMessage(Strings.format("@[accent] is switching behavior of @ bots to @@.", player.coloredName(), botsSwitchedFinal, cmd,
+                args.length > 2 ? Strings.format(" with args [lightgray]@[]", Strings.stripColors(cargs)) : ""));
             });
+        });
+        handler.<Player>register("orderargs", "List possible arguments for every command type.", (args, player) -> {
+            player.sendMessage("[accent]Mine [lightgray]- items to mine. Separate items with spaces.\n[]Defend [lightgray]- maximum range to engage at.");
         });
     }
 
