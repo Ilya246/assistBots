@@ -17,23 +17,22 @@ public class assistBotsMod extends Plugin{
     public static Seq<AIPlayer> AIPlayers = new Seq<>();
 
     public float rebalanceDelay = 1f;
-    public float tooltipChance = 0.00005f;
 
     public enum Config{
-        baseBotCount("The base amount of bots.", Integer.class, 4),
-        botFraction("The amount a single player contributes to bot count.", Float.class, 0.5f),
-        compensationMultiplier("In PvP games, the amount of bots a team recieves per missing player.", Float.class, 1.5f);
+        baseBotCount("The base amount of bots.", 4),
+        botFraction("The amount a single player contributes to bot count.", 0.5f),
+        compensationMultiplier("In PvP games, the amount of bots a team recieves per missing player.", 1.5f),
+        tooltipChance("Chance of the /order tip appearing every tick.", 0.00005f),
+        orderRestrict("Restricts the /order command to admins only. Also disables the /order tip.", false);
 
         public static final Config[] all = values();
 
         public final Object defaultValue;
-        public final Class valueClass;
         public Object value;
         public String description;
 
-        Config(String description, Class valueClass, Object value){
+        Config(String description, Object value){
             this.description = description;
-            this.valueClass = valueClass;
             this.defaultValue = value;
             this.value = defaultValue;
         }
@@ -42,6 +41,9 @@ public class assistBotsMod extends Plugin{
         }
         public float f(){
             return (float)value;
+        }
+        public boolean b(){
+            return (boolean)value;
         }
         public String s(){
             return value.toString();
@@ -59,7 +61,7 @@ public class assistBotsMod extends Plugin{
             AIPlayers.each(p -> {
                 p.update();
             });
-            if(Mathf.chance(tooltipChance * Time.delta)){
+            if(!Config.orderRestrict.b() && Mathf.chance(Config.tooltipChance.f() * Time.delta)){
                 Call.sendMessage("[crimson]<Bot Plugin>: [accent]Consider using the [lightgray]/order []command to command bots!");
             }
         });
@@ -110,7 +112,19 @@ public class assistBotsMod extends Plugin{
     }
 
     public void registerClientCommands(CommandHandler handler){
-        handler.<Player>register("order", "<command> [amount] [args]", "Order bots to switch their behavior.", (args, player) -> {
+        handler.<Player>register("order", "[command] [amount]", "Order bots to switch their behavior.", (args, player) -> {
+            if(args.length == 0){
+                StringBuilder s = new StringBuilder("[accent]Available commands:");
+                AIPlayer.behaviorTypes.each(b -> {
+                    s.append(" " + b);
+                });
+                player.sendMessage(s.toString());
+                return;
+            }
+            if(Config.orderRestrict.b() && !player.admin){
+                player.sendMessage("[scarlet]/order is currently only usable by admins.");
+                return;
+            }
             String cmd = AIPlayer.behaviorTypes.find(b -> b.equals(args[0]));
             if(cmd == null){
                 StringBuilder s = new StringBuilder("[scarlet]Invalid command. Available commands:");
@@ -173,10 +187,12 @@ public class assistBotsMod extends Plugin{
                         c.value = c.defaultValue;
                     }else{
                         try{
-                            if(c.valueClass == Integer.class){
+                            if(c.defaultValue instanceof Integer){
                                 c.value = Integer.parseInt(args[1]);
-                            }else{
+                            }else if(c.defaultValue instanceof Float){
                                 c.value = Float.parseFloat(args[1]);
+                            }else{
+                                c.value = Boolean.parseBoolean(args[1]);
                             }
                         }catch(NumberFormatException e){
                             Log.err("Not a valid number: @", args[1]);
