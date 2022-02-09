@@ -53,8 +53,9 @@ public class AIPlayer{
         if(unit == null || unit.dead()){
             respawnTimer += Time.delta;
         }
-        if(respawnTimer >= respawnTime || (timer.get(1, coreCheckTime) && unit != null && ((CoreBlock)bestCore().block).unitType != unit.type)){
-            Building core = bestCore();
+        Building core;
+        if(respawnTimer >= respawnTime || (timer.get(1, coreCheckTime) && unit != null && (core = bestCore()) != null && ((CoreBlock)core.block).unitType != unit.type)){
+            core = bestCore();
             if(core == null){
                 assistBotsMod.AIPlayers.remove(this);
                 return;

@@ -4,10 +4,11 @@ import mindustry.game.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.mod.*;
-import arc.util.*;
+import arc.Core;
+import arc.Events;
 import arc.math.*;
 import arc.struct.*;
-import arc.Events;
+import arc.util.*;
 import assistBotsMod.AIPlayer;
 
 import static mindustry.Vars.*;
@@ -28,30 +29,36 @@ public class assistBotsMod extends Plugin{
         public static final Config[] all = values();
 
         public final Object defaultValue;
-        public Object value;
         public String description;
 
         Config(String description, Object value){
             this.description = description;
             this.defaultValue = value;
-            this.value = defaultValue;
         }
         public int i(){
-            return (int)value;
+            return Core.settings.getInt(name(), (int)defaultValue);
         }
         public float f(){
-            return (float)value;
+            return Core.settings.getFloat(name(), (float)defaultValue);
         }
         public boolean b(){
-            return (boolean)value;
+            return Core.settings.getBool(name(), (boolean)defaultValue);
         }
         public String s(){
-            return value.toString();
+            return Core.settings.get(name(), defaultValue).toString();
+        }
+        public void set(Object value){
+            Core.settings.put(name(), value);
         }
     }
 
     @Override
     public void init(){
+        for(Config c : Config.all){
+            if(!Core.settings.has(c.name())){
+                Core.settings.put(c.name(), c.defaultValue);
+            }
+        }
         Timer.schedule(() -> {
             if(state.isGame()){
                 balancePlayers();
@@ -191,15 +198,15 @@ public class assistBotsMod extends Plugin{
                     Log.info("'@' is currently @.", c.name(), c.s());
                 }else{
                     if(args[1].equals("default")){
-                        c.value = c.defaultValue;
+                        c.set(c.defaultValue);
                     }else{
                         try{
                             if(c.defaultValue instanceof Integer){
-                                c.value = Integer.parseInt(args[1]);
+                                c.set(Integer.parseInt(args[1]));
                             }else if(c.defaultValue instanceof Float){
-                                c.value = Float.parseFloat(args[1]);
+                                c.set(Float.parseFloat(args[1]));
                             }else{
-                                c.value = Boolean.parseBoolean(args[1]);
+                                c.set(Boolean.parseBoolean(args[1]));
                             }
                         }catch(NumberFormatException e){
                             Log.err("Not a valid number: @", args[1]);
@@ -207,6 +214,7 @@ public class assistBotsMod extends Plugin{
                         }
                     }
                     Log.info("@ set to @.", c.name(), c.s());
+                    Core.settings.forceSave();
                 }
             }catch(IllegalArgumentException e){
                 Log.err("Unknown config: '@'. Run the command with no arguments to get a list of valid configs.", args[0]);
