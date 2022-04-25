@@ -132,8 +132,16 @@ public class assistBotsMod extends Plugin{
                 player.sendMessage("[scarlet]/order is currently only usable by admins.");
                 return;
             }
+            String from = null;
+            boolean reassign = false;
+            String[] cmds = args[0].split("/");
+            if(cmds.length == 2){
+                reassign = true;
+                from = cmds[0];
+                args[0] = cmds[1];
+            }
             String cmd = AIPlayer.behaviorTypes.find(b -> b.equals(args[0]));
-            if(cmd == null){
+            if(cmd == null || (reassign && !AIPlayer.behaviorTypes.contains(from))){
                 StringBuilder s = new StringBuilder("[scarlet]Invalid command. Available commands:");
                 AIPlayer.behaviorTypes.each(b -> {
                     s.append(" " + b);
@@ -148,7 +156,7 @@ public class assistBotsMod extends Plugin{
             int amount = AIPlayers.size;
             if(args.length > 1){
                 try{
-                    amount = Math.min(amount, Integer.parseInt(args[1]));
+                    amount = Math.max(0, Math.min(amount, Integer.parseInt(args[1])));
                 }catch(NumberFormatException e){
                     player.sendMessage("[scarlet]Invalid amount.");
                     return;
@@ -162,7 +170,7 @@ public class assistBotsMod extends Plugin{
                 if(botsSwitched == amount){
                     break;
                 }
-                if(p.behaviorType == "auto" || validBots.size - botsChecked <= amount){
+                if(from == null ? p.behaviorType == "auto" || validBots.size - botsChecked <= amount : p.behaviorType == from){
                     p.behaviorType = cmd;
                     p.aiArgs = cargs;
                     p.resetAI();

@@ -74,7 +74,9 @@ public class AIPlayer{
             return;
         }
         if(unit.getPlayer() != null){
-            unit.getPlayer().clearUnit();
+            unit.spawnedByCore = spawnedByCore;
+            unit = null;
+            return;
         }
         if(!(unit.controller() instanceof MineAI)){
             unit.mineTile = null;

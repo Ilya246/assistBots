@@ -50,7 +50,11 @@ public class DefendAI extends AIController{
                 pathfind(Pathfinder.fieldRally);
             }
         }
-        faceTarget();
+        if(unit.type.omniMovement){
+            faceTarget();
+        }else{
+            faceMovement();
+        }
     }
     @Override
     public boolean retarget(){
