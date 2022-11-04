@@ -120,6 +120,9 @@ public class AIPlayer{
                 case "build":
                     unit.controller(new BuildAI());
                     break;
+                default:
+                    unit.controller(new MineAI("", unit));
+                    break;
             }
         }
     }
