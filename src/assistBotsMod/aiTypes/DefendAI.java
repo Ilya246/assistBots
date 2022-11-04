@@ -31,17 +31,16 @@ public class DefendAI extends AIController{
         if(ownCore == null){
             return;
         }
-        if(Units.invalidateTarget(target, unit, defendMaxRange) && target != null){
-            target = findMainTarget(unit.x, unit.y, 0, unit.type.targetAir, unit.type.targetGround);
-        }
-        if(timer.get(timerTarget2, target == null ? 30f : 60f)){
+        if((target != null && Units.invalidateTarget(target, unit, defendMaxRange)) || timer.get(timerTarget2, target == null ? 30f : 60f)){
             target = findMainTarget(unit.x, unit.y, 0, unit.type.targetAir, unit.type.targetGround);
         }
         if(!Units.invalidateTarget(target, unit, defendMaxRange) && unit.hasWeapons()){
-            if(target.within(ownCore, unit.range())){
+            if(target.within(ownCore, unit.range()) && unit.type.omniMovement){
                 moveTo(vec.set(ownCore).add(target).scl(0.5f), unit.hitSize, unit.hitSize * 8f);
+                unit.lookAt(vec.set(unit.mounts[0].aimX, unit.mounts[0].aimY));
             }else{
                 moveTo(target, unit.range() * 0.8f, 8f);
+                unit.lookAt(vec.set(unit.mounts[0].aimX, unit.mounts[0].aimY));
             }
         }else{
             if(unit.isFlying()){
@@ -49,10 +48,6 @@ public class DefendAI extends AIController{
             }else{
                 pathfind(Pathfinder.fieldCore);
             }
-        }
-        if(unit.type.omniMovement){
-            faceTarget();
-        }else{
             faceMovement();
         }
     }
