@@ -41,7 +41,7 @@ public class BuildAI extends AIController{
                 for(Player player : Groups.player){
                     if(player.isBuilder() && player.unit().activelyBuilding() && player.unit().buildPlan().samePos(req) && player.unit().buildPlan().breaking){
                         unit.plans.removeFirst();
-                        unit.team.data().blocks.remove(p -> p.x == req.x && p.y == req.y);
+                        unit.team.data().plans.remove(p -> p.x == req.x && p.y == req.y);
                         return;
                     }
                 }
@@ -73,10 +73,10 @@ public class BuildAI extends AIController{
                     }
                 });
             }
-            if(unit.team.data().blocks.isEmpty()){
+            if(unit.team.data().plans.isEmpty()){
                 buildOverclock = Math.max(buildOverclock - Time.delta, 0f);
             }else if(following == null && timer.get(timerTarget3, rebuildTime - buildOverclock)){
-                Queue<BlockPlan> blocks = unit.team.data().blocks;
+                Queue<BlockPlan> blocks = unit.team.data().plans;
                 BlockPlan block = blocks.first();
                 if(world.tile(block.x, block.y) != null && world.tile(block.x, block.y).block().id == block.block){
                     blocks.removeFirst();

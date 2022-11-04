@@ -47,7 +47,7 @@ public class DefendAI extends AIController{
             if(unit.isFlying()){
                 moveTo(ownCore, unit.range() * 0.8f, 40f);
             }else{
-                pathfind(Pathfinder.fieldRally);
+                pathfind(Pathfinder.fieldCore);
             }
         }
         if(unit.type.omniMovement){

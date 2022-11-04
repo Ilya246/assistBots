@@ -18,8 +18,10 @@ public class assistBotsMod extends Plugin{
     public static Seq<AIPlayer> AIPlayers = new Seq<>();
 
     public float rebalanceDelay = 1f;
+    public static String configPrefix = "bots-";
 
     public enum Config{
+        respawnTime("The time it takes a bot to respawn, in frames (1/60ths of a second).", 15f),
         baseBotCount("The base amount of bots.", 4),
         botFraction("The amount a single player contributes to bot count.", 0.5f),
         compensationMultiplier("In PvP games, the amount of bots a team recieves per missing player.", 1.5f),
@@ -35,28 +37,31 @@ public class assistBotsMod extends Plugin{
             this.description = description;
             this.defaultValue = value;
         }
+        public String getName(){
+            return configPrefix + name();
+        }
         public int i(){
-            return Core.settings.getInt(name(), (int)defaultValue);
+            return Core.settings.getInt(getName(), (int)defaultValue);
         }
         public float f(){
-            return Core.settings.getFloat(name(), (float)defaultValue);
+            return Core.settings.getFloat(getName(), (float)defaultValue);
         }
         public boolean b(){
-            return Core.settings.getBool(name(), (boolean)defaultValue);
+            return Core.settings.getBool(getName(), (boolean)defaultValue);
         }
         public String s(){
-            return Core.settings.get(name(), defaultValue).toString();
+            return Core.settings.get(getName(), defaultValue).toString();
         }
         public void set(Object value){
-            Core.settings.put(name(), value);
+            Core.settings.put(getName(), value);
         }
     }
 
     @Override
     public void init(){
         for(Config c : Config.all){
-            if(!Core.settings.has(c.name())){
-                Core.settings.put(c.name(), c.defaultValue);
+            if(!Core.settings.has(c.getName())){
+                Core.settings.put(c.getName(), c.defaultValue);
             }
         }
         Timer.schedule(() -> {

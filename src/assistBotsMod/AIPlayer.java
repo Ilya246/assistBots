@@ -25,7 +25,7 @@ import mindustry.Vars;
 import static mindustry.Vars.*;
 
 public class AIPlayer{
-    public float respawnTimer = respawnTime;
+    public float respawnTimer = assistBotsMod.Config.respawnTime.f();
     public boolean spawnedByCore = true;
     public String behaviorType = "auto";
     public String aiArgs = "";
@@ -33,7 +33,6 @@ public class AIPlayer{
     public Team team;
     public Interval timer = new Interval(2);
     public static Seq<String> behaviorTypes = Seq.with("auto", "mine", "build", "defend");
-    public static float respawnTime = 15f;
     public static float coreCheckTime = 240f;
     public static float defendBuildingAggro = 400f;
     public static float autoAggroDistance = 640f;
@@ -54,7 +53,7 @@ public class AIPlayer{
             respawnTimer += Time.delta;
         }
         Building core;
-        if(respawnTimer >= respawnTime || (timer.get(1, coreCheckTime) && unit != null && (core = bestCore()) != null && ((CoreBlock)core.block).unitType != unit.type)){
+        if(respawnTimer >= assistBotsMod.Config.respawnTime.f() || (timer.get(1, coreCheckTime) && unit != null && (core = bestCore()) != null && ((CoreBlock)core.block).unitType != unit.type)){
             core = bestCore();
             if(core == null){
                 assistBotsMod.AIPlayers.remove(this);
