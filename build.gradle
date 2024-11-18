@@ -2,32 +2,33 @@ apply plugin: "java"
 
 version '1.0'
 
+sourceCompatibility = JavaVersion.VERSION_16
+
 sourceSets.main.java.srcDirs = ["src"]
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
 
 repositories{
     mavenCentral()
+    maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
     maven{ url 'https://www.jitpack.io' }
 }
 
+ext{
+    //the build number that this plugin is made for
+    mindustryVersion = 'v146'
+    jabelVersion = "93fde537c7"
+}
+
 dependencies{
-    def version = "v140"
-    compileOnly "com.github.Anuken.Arc:arc-core:$version"
-    compileOnly "com.github.Anuken.Mindustry:core:$version"
-}
-
-compileJava{
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
-    options.encoding = "UTF-8"
-}
-
-compileTestJava{
-    options.encoding = "UTF-8"
+    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
+    compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
+    //annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 }
 
 jar{
     archiveFileName = "${project.archivesBaseName}.jar"
-
     from{
         configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
     }
