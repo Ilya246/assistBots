@@ -113,9 +113,11 @@ public class assistBotsMod extends Plugin{
             for(int i = teamBotMap.get(e.key, 0); i > thisTarget; i--){
                 AIPlayer removePlayer = AIPlayers.find(b -> b.team == e.key);
                 if(removePlayer != null){
-                    removePlayer.unit.resetController();
-                    if(removePlayer.spawnedByCore){
-                        removePlayer.unit.spawnedByCore = true;
+                    if(removePlayer.unit != null){
+                        removePlayer.unit.resetController();
+                        if(removePlayer.spawnedByCore){
+                            removePlayer.unit.spawnedByCore = true;
+                        }
                     }
                     AIPlayers.remove(removePlayer);
                 }
